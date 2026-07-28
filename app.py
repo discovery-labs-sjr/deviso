@@ -3,14 +3,18 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-# 1. Configuration de la page style Apple
+# 1. Configuration de la page et de l'icône de l'onglet
 st.set_page_config(
     page_title="DEVIS'O",
     page_icon="💱",
     layout="centered"
 )
 
-# 2. Injection du CSS effet "Liquid Glass / iOS" (Optimisé pour la lisibilité)
+# Injection de ton icône officielle pour l'installation sur smartphone
+st.markdown('<link rel="apple-touch-icon" href="https://streamlit.app">', unsafe_allow_html=True)
+st.markdown('<link rel="icon" href="https://streamlit.app">', unsafe_allow_html=True)
+
+# 2. Injection du CSS effet "Liquid Glass / iOS" (Correction de la surcouche blanche)
 st.markdown("""
 <style>
 /* Fond sombre uniforme sans surcouche */
@@ -25,9 +29,9 @@ st.markdown("""
     max-width: 480px !important;
 }
 
-/* Effet Verre Dépoli (Glassmorphism) sur le bloc de conversion */
+/* Effet Verre Dépoli (Glassmorphism) */
 .apple-container {
-    background: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
     backdrop-filter: blur(20px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
     border-radius: 22px !important;
@@ -38,23 +42,26 @@ st.markdown("""
     margin-bottom: 20px;
 }
 
-/* Nettoyage forcé des structures par défaut de Streamlit */
-div[data-testid="stForm"], .stFormSubmitButton {
+/* SUPPRESSION DE LA SURCOUCHE BLANCHE SUR LES COMPOSANTS INTERNES */
+div[data-testid="stForm"], 
+.stFormSubmitButton, 
+div[data-testid="stMetric"], 
+div[data-testid="stMetricValue"] {
+    background-color: transparent !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 0 !important;
 }
 
 /* Textes toujours blancs et bien contrastés */
-h1, h2, h3, h4, p, span, label, div, p, li {
+h1, h2, h3, h4, p, span, label, div, li, p {
     color: #ffffff !important;
 }
 
-/* Forçage de la visibilité blanche sur le résultat métrique */
+/* Forçage de la visibilité des chiffres du résultat en Blanc Éclatant */
 div[data-testid="stMetricValue"] > div {
     color: #ffffff !important;
-    font-size: 2.3rem !important;
+    font-size: 2.5rem !important;
     font-weight: 700 !important;
 }
 div[data-testid="stMetricLabel"] > div {
@@ -71,7 +78,7 @@ div[data-baseweb="select"] span, div[data-baseweb="input"] input {
     color: #ffffff !important;
 }
 
-/* Onglets épurés pour s'intégrer au mode sombre */
+/* Onglets de navigation */
 button[data-baseweb="tab"] {
     color: #86868b !important;
 }
@@ -90,16 +97,11 @@ div.stButton > button {
     padding: 12px 20px !important;
     width: 100% !important;
     box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3) !important;
-    transition: all 0.2s ease !important;
-}
-div.stButton > button:hover {
-    transform: scale(1.01) !important;
-    box-shadow: 0 6px 20px rgba(0, 122, 255, 0.5) !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. INITIALISATION DES TAUX DE BASE (Hors-ligne stable)
+# 3. INITIALISATION DES TAUX DE BASE
 if "taux" not in st.session_state:
     st.session_state.taux = {
         "EUR": 1.0, "USD": 1.09, "GBP": 0.85, 
@@ -118,9 +120,8 @@ def inverser_devises():
     st.session_state.source_idx = st.session_state.cible_idx
     st.session_state.cible_idx = ancien_source
 
-# 4. BARRE LATÉRALE RE-STYLISÉE SOMBRE
+# 4. BARRE LATÉRALE RE-STYLISÉE
 st.sidebar.markdown("<h2 style='font-weight: 600;'>💧 DEVIS'O Réglages</h2>", unsafe_allow_html=True)
-st.sidebar.write("Ajuster les taux (Base 1 EUR) :")
 
 for devise in DEVISES:
     if devise == "EUR":
@@ -130,11 +131,10 @@ for devise in DEVISES:
             f"🔄 {devise}", value=st.session_state.taux[devise], format="%.4f"
         )
 
-# 5. TITRE PRINCIPAL
+# 5. EN-TÊTE PRINCIPAL
 st.markdown("<h1 style='text-align: center; font-weight: 700; letter-spacing: -1px; margin-bottom: 0;'>DEVIS'O</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #a1a1a6; font-size: 16px; margin-top: 5px; margin-bottom: 25px;'>Le change de devises, version fluide et transparente.</p>", unsafe_allow_html=True)
 
-# APPLICATION DE NOTRE BULLE DE VERRE DÉPOLI COMPATIBLE MOBILE
 st.markdown('<div class="apple-container">', unsafe_allow_html=True)
 
 onglet1, onglet2, onglet3 = st.tabs(["💱 Convertir", "📊 Graphique", "📋 Vue d'ensemble"])
@@ -147,7 +147,7 @@ with onglet1:
         with col_f:
             frais_pourcent = st.slider("Frais de l'opérateur (%) :", min_value=0.0, max_value=5.0, value=0.0, step=0.1)
 
-        c1, c_btn, c2 = st.columns([4, 2, 4])
+        c1, c_btn, c2 = st.columns(3)
         with c1:
             devise_source = st.selectbox("De", DEVISES, key="source_select", index=st.session_state.source_idx)
         with c_btn:
@@ -197,4 +197,4 @@ with onglet3:
         tableau_donnees.append({"Devise": d, "Valeur": f"{valeur:,.2f} {d}", "Cours (1 EUR)": f"{st.session_state.taux[d]:.4f}"})
     st.dataframe(pd.DataFrame(tableau_donnees), use_container_width=True, hide_index=True)
 
-st.markdown('</div>', unsafe_allow_html=True) # FIN DE LA BULLE DE VERRE
+st.markdown('</div>', unsafe_allow_html=True)
