@@ -3,35 +3,33 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-# 1. Configuration de la page et de l'icône de l'onglet
+# 1. Configuration de la page style Apple
 st.set_page_config(
     page_title="DEVIS'O",
     page_icon="💱",
     layout="centered"
 )
 
-# Injection de ton icône officielle pour l'installation sur smartphone
-st.markdown('<link rel="apple-touch-icon" href="https://streamlit.app">', unsafe_allow_html=True)
-st.markdown('<link rel="icon" href="https://streamlit.app">', unsafe_allow_html=True)
+# LIEN RÉEL ET DIRECT VERS TON ICÔNE SUR GITHUB
+URL_ICONE = "https://githubusercontent.com"
 
-# 2. Injection du CSS effet "Liquid Glass / iOS" (Correction de la surcouche blanche)
+# Injection HTML pour forcer l'icône Apple et Android
+st.markdown(f'<link rel="apple-touch-icon" href="{URL_ICONE}">', unsafe_allow_html=True)
+st.markdown(f'<link rel="icon" type="image/jpeg" href="{URL_ICONE}">', unsafe_allow_html=True)
+
+# 2. Injection du CSS effet "Liquid Glass / iOS"
 st.markdown("""
 <style>
-/* Fond sombre uniforme sans surcouche */
 .stApp {
     background: linear-gradient(135deg, #0d0e15 0%, #1a1c29 100%) !important;
 }
-
-/* Nettoyage des marges et centrage mobile */
 .main .block-container {
     padding-top: 1.5rem !important;
     padding-bottom: 2rem !important;
     max-width: 480px !important;
 }
-
-/* Effet Verre Dépoli (Glassmorphism) */
 .apple-container {
-    background: rgba(255, 255, 255, 0.06) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(20px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
     border-radius: 22px !important;
@@ -41,34 +39,23 @@ st.markdown("""
     margin-top: 10px;
     margin-bottom: 20px;
 }
-
-/* SUPPRESSION DE LA SURCOUCHE BLANCHE SUR LES COMPOSANTS INTERNES */
-div[data-testid="stForm"], 
-.stFormSubmitButton, 
-div[data-testid="stMetric"], 
-div[data-testid="stMetricValue"] {
-    background-color: transparent !important;
+div[data-testid="stForm"], .stFormSubmitButton {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
+    padding: 0 !important;
 }
-
-/* Textes toujours blancs et bien contrastés */
-h1, h2, h3, h4, p, span, label, div, li, p {
+h1, h2, h3, h4, p, span, label, div, li {
     color: #ffffff !important;
 }
-
-/* Forçage de la visibilité des chiffres du résultat en Blanc Éclatant */
 div[data-testid="stMetricValue"] > div {
     color: #ffffff !important;
-    font-size: 2.5rem !important;
+    font-size: 2.3rem !important;
     font-weight: 700 !important;
 }
 div[data-testid="stMetricLabel"] > div {
     color: #a1a1a6 !important;
 }
-
-/* Saisie de texte et menus déroulants style iOS */
 div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {
     background-color: rgba(255, 255, 255, 0.08) !important;
     border-radius: 14px !important;
@@ -77,8 +64,6 @@ div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {
 div[data-baseweb="select"] span, div[data-baseweb="input"] input {
     color: #ffffff !important;
 }
-
-/* Onglets de navigation */
 button[data-baseweb="tab"] {
     color: #86868b !important;
 }
@@ -86,8 +71,6 @@ button[aria-selected="true"] {
     color: #ffffff !important;
     border-bottom-color: #007aff !important;
 }
-
-/* Bouton bleu style iOS */
 div.stButton > button {
     background: linear-gradient(135deg, #007aff 0%, #0056b3 100%) !important;
     color: #ffffff !important;
@@ -96,7 +79,6 @@ div.stButton > button {
     font-weight: 600 !important;
     padding: 12px 20px !important;
     width: 100% !important;
-    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -120,9 +102,7 @@ def inverser_devises():
     st.session_state.source_idx = st.session_state.cible_idx
     st.session_state.cible_idx = ancien_source
 
-# 4. BARRE LATÉRALE RE-STYLISÉE
 st.sidebar.markdown("<h2 style='font-weight: 600;'>💧 DEVIS'O Réglages</h2>", unsafe_allow_html=True)
-
 for devise in DEVISES:
     if devise == "EUR":
         st.sidebar.number_input(f"💶 {devise} (Base)", value=1.0, disabled=True)
@@ -131,12 +111,10 @@ for devise in DEVISES:
             f"🔄 {devise}", value=st.session_state.taux[devise], format="%.4f"
         )
 
-# 5. EN-TÊTE PRINCIPAL
 st.markdown("<h1 style='text-align: center; font-weight: 700; letter-spacing: -1px; margin-bottom: 0;'>DEVIS'O</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #a1a1a6; font-size: 16px; margin-top: 5px; margin-bottom: 25px;'>Le change de devises, version fluide et transparente.</p>", unsafe_allow_html=True)
 
 st.markdown('<div class="apple-container">', unsafe_allow_html=True)
-
 onglet1, onglet2, onglet3 = st.tabs(["💱 Convertir", "📊 Graphique", "📋 Vue d'ensemble"])
 
 with onglet1:
@@ -147,7 +125,7 @@ with onglet1:
         with col_f:
             frais_pourcent = st.slider("Frais de l'opérateur (%) :", min_value=0.0, max_value=5.0, value=0.0, step=0.1)
 
-        c1, c_btn, c2 = st.columns(3)
+        c1, c_btn, c2 = st.columns()
         with c1:
             devise_source = st.selectbox("De", DEVISES, key="source_select", index=st.session_state.source_idx)
         with c_btn:
