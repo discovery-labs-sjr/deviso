@@ -171,6 +171,8 @@ def fetch_history_direct(src: str, tgt: str, days: int = 30) -> pd.DataFrame | N
             return None
 
         return pd.DataFrame(parsed).sort_values("Date").drop_duplicates("Date")
+    except Exception:
+        return None
 
 
 def fetch_history_xof_pair(src: str, tgt: str, days: int = 30) -> tuple[pd.DataFrame | None, str]:
