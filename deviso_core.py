@@ -106,7 +106,7 @@ def currency_label(code: str) -> str:
 
 
 def clean_rates(raw: dict[str, Any]) -> dict[str, float]:
-    rates: dict[str, float] = {"EUR": 1.0}
+    rates: dict[str, float] = dict(TAUX_SECOURS)
     for code, value in raw.items():
         try:
             numeric = float(value)
